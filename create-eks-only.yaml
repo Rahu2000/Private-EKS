@@ -1,0 +1,55 @@
+## EKSCTL SCHEMA
+## https://eksctl.io/usage/schema/
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: eksworkshop
+  region: ap-northeast-2
+  version: "1.21"
+  tags:
+    env: dev
+
+kubernetesNetworkConfig:
+  serviceIPv4CIDR: 10.100.0.0/18
+
+privateCluster:
+  enabled: true
+  additionalEndpointServices:
+  - "autoscaling"
+  - "cloudformation"
+  - "logs"
+  # Default Created EndpointServices
+  # EC2
+  # S3
+  # ECR.API
+  # ECR.DKR
+  # STS
+
+## example of existing VPC
+vpc:
+  id: "vpc-0fe7560c88c9cc165"  # (optional, must match VPC ID used for each subnet below)
+  subnets:
+    # must provide 'private' and/or 'public' subnets by availibility zone as shown
+    private:
+      ap-northeast-2a:
+        id: "subnet-0117be75a582cb7ee"
+      ap-northeast-2b:
+        id: "subnet-047928ac813390648"
+
+# cloudWatch:
+#   clusterLogging:
+#     enableTypes: ["audit", "authenticator"]
+
+iam:
+  withOIDC: true
+
+# identityProviders:
+#   - name: cognito-user-pool-1
+#     issuerURL: https://cognito-idp.ap-northeast-2.amazonaws.com/ap-northeast-2
+#     clientID: 10basodnbu3gs9b1bf9r566btu
+#     usernameClaim: email
+#     type: oidc
+
+# secretsEncryption:
+#   keyARN: "arn:aws:kms:REGION:ACCOUNT_ID:alias/KMS_KEY"

@@ -1,0 +1,149 @@
+global:
+  priorityClassName: "system-cluster-critical"
+  rbac:
+    create: true
+
+  podSecurityPolicy:
+    enabled: true
+    useAppArmor: true
+
+  logLevel: 2
+
+  leaderElection:
+    namespace: "kube-system"
+    # leaseDuration: 60s
+    # renewDeadline: 40s
+    # retryPeriod: 15s
+
+installCRDs: false
+replicaCount: 1
+
+serviceAccount:
+  create: true
+
+extraArgs:
+  - --cluster-resource-namespace=kube-system
+  - --enable-certificate-owner-ref=true
+
+resources:
+  limits:
+    memory: 100Mi
+  requests:
+    cpu: 30m
+    memory: 100Mi
+
+prometheus:
+  enabled: ENABLE_PROMETHUES_MONITORING
+  servicemonitor:
+    enabled: true
+    prometheusInstance: default
+    targetPort: 9402
+    path: /metrics
+    interval: 60s
+    scrapeTimeout: 30s
+    labels: {}
+
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1
+        preference:
+          matchExpressions:
+          - key: role
+            operator: In
+            values:
+            - management
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchExpressions:
+          - key: app
+            operator: In
+            values:
+            - cert-manager
+        topologyKey: topology.kubernetes.io/zone
+tolerations:
+  - key: dedicated
+    operator: Equal
+    value: "management"
+    effect: NoSchedule
+
+webhook:
+  replicaCount: 1
+  timeoutSeconds: 10
+
+  resources:
+    limits:
+      memory: 100Mi
+    requests:
+      cpu: 10m
+      memory: 100Mi
+
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1
+        preference:
+          matchExpressions:
+            - key: role
+              operator: In
+              values:
+              - management
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - webhook
+          topologyKey: topology.kubernetes.io/zone
+
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: "management"
+      effect: NoSchedule
+
+  serviceAccount:
+    create: true
+
+cainjector:
+  enabled: true
+  replicaCount: 1
+
+  resources:
+    limits:
+      memory: 100Mi
+    requests:
+      cpu: 10m
+      memory: 100Mi
+
+  affinity:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 1
+        preference:
+          matchExpressions:
+            - key: role
+              operator: In
+              values:
+              - management
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchExpressions:
+            - key: app
+              operator: In
+              values:
+              - cainjector
+          topologyKey: topology.kubernetes.io/zone
+
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: "management"
+      effect: NoSchedule
+
+  serviceAccount:
+    create: true

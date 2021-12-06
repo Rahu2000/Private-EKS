@@ -1,0 +1,41 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: eksworkshop
+  region: ap-northeast-2
+
+managedNodeGroups:
+  - name: management
+    instanceType: t3.small
+    minSize: 1
+    desiredCapacity: 1
+    maxSize: 4
+    # availabilityZones: ["us-west-2a", "us-west-2b"]
+    volumeType: gp3
+    volumeSize: 30
+    # volumeName: /dev/xvda
+    # volumeEncrypted: true
+    # securityGroups:
+    #   attachIDs: ["sg-1", "sg-2"]
+    ssh:
+      allow: true
+      publicKeyName: windows
+    #   enableSsm: true
+    labels:
+      role: management
+      node-class: "management-node"
+      lifecycle: OnDemand
+    tags:
+      nodegroup-role: management
+      k8s.io/cluster-autoscaler/node-template/label/lifecycle: OnDemand
+      k8s.io/cluster-autoscaler/node-template/taint/dedicated: "management:NoSchedule"
+      k8s.io/cluster-autoscaler/enabled: "true"
+      k8s.io/cluster-autoscaler/eksworkshop: "owned"
+
+    privateNetworking: true
+    disableIMDSv1: true
+    # taints:
+    # - key:
+    #   value:
+    #   effect:
